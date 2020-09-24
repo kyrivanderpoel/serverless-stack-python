@@ -1,0 +1,37 @@
+service: notes-app-api
+
+custom:
+  wsgi:
+    app: notes.app.app
+    packRequirements: false
+  pythonRequirements:
+    dockerizePip: non-linux
+  dynamodb:
+    start:
+      migrate: true
+    stages:
+      - dev
+
+package:
+  individually: true
+
+plugins:
+  - serverless-python-requirements
+  - serverless-wsgi
+  - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-dotenv-plugin
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: us-east-1
+
+functions:
+  app:
+    handler: wsgi.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+
