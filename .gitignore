@@ -53,4 +53,9 @@ env.yml
 
 # python
 venv
+__pycache__
+.pyc
+
+# MAC
+.DS_STORE
 

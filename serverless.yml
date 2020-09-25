@@ -24,13 +24,16 @@ plugins:
 
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.7
   stage: dev
   region: us-east-1
+  environment:
+    NOTES_DEV_TABLE_NAME: notes-dev
+    LOCAL_API_ENDPOINT: http://localhost:5000/
 
 functions:
   app:
-    handler: wsgi.handler
+    handler: wsgi_handler.handler
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
