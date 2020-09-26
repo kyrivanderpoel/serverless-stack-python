@@ -33,5 +33,12 @@ class DynamoDBNoteAdapter(DatabaseAdapter):
             print(e.response["Error"]["Message"])
             return None
 
+    def update(self, note, attachment, content):
+        note.attachment = attachment
+        note.content = content
+        note.record_modification()
+        self.save(note)
+        return note
+
     def all(self):
         raise NotImplemented

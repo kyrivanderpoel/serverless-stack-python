@@ -1,3 +1,4 @@
+# TODO: Implement a client!
 import json
 import requests
 from flask.cli import AppGroup
@@ -22,6 +23,29 @@ def create_note(user_id, password, attachment, content):
 
     # 2. Create the note
     response = session.post(note_endpoint, json=dict(user_id=user_id, attachment=attachment, content=content))
+    print(json.dumps(response.json(), indent=2))
+
+    # 3. Logout
+    endpoint = auth_endpoint + "/logout"
+    response = session.post(endpoint, json=dict(user_id=user_id))
+    print(json.dumps(response.json(), indent=2))
+
+@note_cli.command("update")
+@click.option("--user-id", required=True)
+@click.option("--note-id", required=True)
+@click.option("--password", required=True)
+@click.option("--attachment", required=False)
+@click.option("--content", required=False)
+def update_note(user_id, note_id, password, attachment, content):
+    session = requests.Session()
+    # 1. Login
+    endpoint = auth_endpoint + "/login"
+    response = session.post(endpoint, json=dict(user_id=user_id, password=password))
+    print(json.dumps(response.json(), indent=2))
+
+    # 2. Update the note
+    endpoint = note_endpoint + f"/{user_id}/{note_id}"
+    response = session.put(endpoint, json=dict(attachment=attachment, content=content))
     print(json.dumps(response.json(), indent=2))
 
     # 3. Logout

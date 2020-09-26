@@ -22,8 +22,6 @@ def create_note():
     attachment = json_data.get("attachment")
     content = json_data.get("content")
     user_id = json_data.get("user_id")
-    if request.environ.get("serverless.event"):
-        user_id = request.environ["serverless.event"]["requestContext"]["identity"]["cognitoIdentity"]
 
     # Raise a 400 error if any of the arguments are missing.
     validate_arguments(attachment=attachment, content=content, user_id=user_id)
@@ -38,7 +36,6 @@ def create_note():
 @note_api.route("/<user_id>", methods=["GET"])
 def list_notes(user_id):
     user_adapter.check_auth(session.get("auth", {}))
-    # Raise a 400 error if any of the arguments are missing.
     validate_arguments(user_id=user_id)
 
     notes = note_adapter.filter(user_id=user_id)
@@ -48,9 +45,24 @@ def list_notes(user_id):
 @note_api.route("/<user_id>/<note_id>", methods=["GET"])
 def get_note(user_id, note_id):
     user_adapter.check_auth(session.get("auth", {}))
-    # Raise a 400 error if any of the arguments are missing.
     validate_arguments(user_id=user_id, note_id=note_id)
 
     note = note_adapter.find(user_id=user_id, note_id=note_id)
 
     return jsonify(note=note.to_json_dict())
+
+@note_api.route("/<user_id>/<note_id>", methods=["PUT"])
+def update_note(user_id, note_id):
+    user_adapter.check_auth(session.get("auth", {}))
+    json_data = request.json or {}
+    validate_arguments(user_id=user_id, note_id=note_id)
+
+    user_adapter.check_auth(session.get("auth", {}))
+    note = note_adapter.find(user_id=user_id, note_id=note_id)
+    note = note_adapter.update(
+        note,
+        attachment=json_data.get("attachment", note.attachment),
+        content=json_data.get("content", note.content),
+    )
+
+    return jsonify(message="Note was updated.", note=note.to_json_dict())
