@@ -18,29 +18,40 @@ class CognitoUserAdapter(DatabaseAdapter):
         u.register(user.user_id, user.password)
 
     def get(self, user_id):
-        u = Cognito(self.pool_id, self.client_id, username=user_id)
-        return u.get_user()
+        response = self.cognito_idp_client.admin_get_user(
+            UserPoolId=self.pool_id,
+            Username=user_id
+        )
+
+        is_confirmed = True if response["UserStatus"] == "CONFIRMED" else False
+        email = None
+        for attr_d in response["UserAttributes"]:
+            if attr_d["Name"] == "email":
+                email = attr_d["Value"]
+        return User(user_id=email, is_confirmed=is_confirmed)
 
     def filter(self, **kwargs):
         raise NotImplemented
 
     def all(self):
-        u = Cognito(self.pool_id, self.client_id)
-        users = u.get_users(attr_map={"email": "email"})
-        print(users)
-        print(users[0]._attr_map)
-        for user in users:
-            print(user.username)
-        print(dir(users[0]))
-        print(dir(users[1]))
+        response = self.cognito_idp_client.list_users(
+            UserPoolId=self.pool_id,
+            AttributesToGet=["email", "email_verified"],
+        )
+        users = []
+        for user in response["Users"]:
+            email = None
+            is_confirmed = True if user["UserStatus"] == "CONFIRMED" else False
+            for attr_d in user["Attributes"]:
+                if attr_d["Name"] == "email":
+                    email = attr_d["Value"]
+            users.append(User(user_id=email, is_confirmed=is_confirmed))
         return users
 
     def login(self, user):
         u = Cognito(self.pool_id, self.client_id, username=user.user_id)
         u.authenticate(password=user.password)
-        print(dir(u))
         attrs = ["id_token", "refresh_token", "access_token", "token_type"]
-
         return {attr: getattr(u, attr) for attr in attrs}
 
     def logout(self, auth):
@@ -51,6 +62,8 @@ class CognitoUserAdapter(DatabaseAdapter):
             refresh_token=auth["refresh_token"],
             access_token=auth["access_token"],
         )
+
+        u.logout()
 
 
     def admin_confirm_signup(self, user):

@@ -1,5 +1,3 @@
-# TODO: get_user and list_users are both pretty useless at the moment. Might need to user the cognito-idp
-#       client to get more useful information.
 import boto3
 from os import environ
 import json
@@ -59,13 +57,13 @@ def logout():
 @auth_api.route("/user", methods=["GET"])
 def list_users():
     users = user_adapter.all()
-    return jsonify(users=users)
+    return jsonify(users=[user.to_json_dict() for user in users])
 
 
 @auth_api.route("/user/<user_id>", methods=["GET"])
 def get_user(user_id):
     user = user_adapter.find(user_id=user_id)
-    return jsonify(user=user)
+    return jsonify(user=user.to_json_dict())
 
 
 @auth_api.route("/user", methods=["POST"])
@@ -78,4 +76,4 @@ def create_user():
     user = User(user_id=user_id, password=password)
     user_adapter.save(user)
 
-    return jsonify(user=dict(user_id=user_id))
+    return jsonify(user=user.to_json_dict())

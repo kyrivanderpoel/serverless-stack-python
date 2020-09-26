@@ -113,4 +113,22 @@ $ flask note get --user-id kyri@coolperson.com --password 'mypasswordT!1' --note
 {
   "message": "Logout successful for kyri@coolperson.com."
 }
+
+$ flask auth list-users                    
+{
+  "users": [
+    {
+      "is_confirmed": true,
+      "user_id": "kyri@kyri.com"
+    },
+    {
+      "is_confirmed": true,
+      "user_id": "kyri@coolperson.com"
+    },
+    {
+      "is_confirmed": true,
+      "user_id": "admin@example.com"
+    }
+  ]
+}
 ```
