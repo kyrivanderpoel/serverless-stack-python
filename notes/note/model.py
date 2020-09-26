@@ -1,6 +1,7 @@
-import uuid
-import attr
 from datetime import datetime
+import uuid
+
+import attr
 
 def iso_string_to_datetime(obj):
     if isinstance(obj, datetime):
@@ -35,6 +36,3 @@ class Note(object):
     @note_id.default
     def _guid_string(self):
         return str(uuid.uuid4())
-
-
-MODELS = set([Note])

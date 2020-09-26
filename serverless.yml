@@ -33,8 +33,7 @@ provider:
 
 functions:
   app:
-    handler: wsgi_handler.handler
+    handler: wsgi.handler
     events:
       - http: ANY /
       - http: 'ANY {proxy+}'
-

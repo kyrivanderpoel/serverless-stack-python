@@ -1,3 +1,4 @@
+"""Utilites that don't fit neatly in another module."""
 from flask.json import JSONEncoder
 from datetime import datetime
 
