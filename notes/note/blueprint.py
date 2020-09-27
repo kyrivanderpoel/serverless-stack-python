@@ -57,7 +57,6 @@ def update_note(user_id, note_id):
     json_data = request.json or {}
     validate_arguments(user_id=user_id, note_id=note_id)
 
-    user_adapter.check_auth(session.get("auth", {}))
     note = note_adapter.find(user_id=user_id, note_id=note_id)
     note = note_adapter.update(
         note,

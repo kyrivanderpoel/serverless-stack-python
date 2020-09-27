@@ -29,18 +29,6 @@ def login():
     session["auth"] = auth_dict
     return jsonify(message=f"Login successful for {user_id}.")
 
-@auth_api.route("/confirm", methods=["POST"])
-def confirm():
-    # This route should go away, but it is very handy for testing.
-    json_data = request.json or {}
-    user_id = json_data.get("user_id")
-    validate_arguments(user_id=user_id)
-
-    user = User(user_id=user_id)
-    user_adapter.admin_confirm_signup(user)
-
-    return jsonify(message=f"Confirmed account for {user_id}.")
-
 @auth_api.route("/logout", methods=["POST"])
 def logout():
     user_adapter.check_auth(session.get("auth", {}))
@@ -77,3 +65,13 @@ def create_user():
     user_adapter.save(user)
 
     return jsonify(user=user.to_json_dict())
+
+@auth_api.route("/user/<user_id>/confirm", methods=["POST"])
+def confirm():
+    # This route should go away, but it is very handy for testing.
+    validate_arguments(user_id=user_id)
+
+    user = User(user_id=user_id)
+    user_adapter.admin_confirm_signup(user)
+
+    return jsonify(message=f"Confirmed account for {user_id}.")

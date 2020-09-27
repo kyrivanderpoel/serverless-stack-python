@@ -1,3 +1,4 @@
+import logging
 from os import environ
 from flask import Flask, request, jsonify
 from .note.blueprint import note_api
@@ -7,7 +8,9 @@ from .util import ISOFormatJSONEncoder
 from .auth.cli import auth_cli
 from .note.cli import note_cli
 
-
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 app = Flask(__name__)
 
 app.secret_key = environ["NOTES_APP_SECRET_KEY"]
